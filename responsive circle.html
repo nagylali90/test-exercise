@@ -110,18 +110,28 @@
     function handleMouseDown(event) {
         var hit = false;
         for (var j = stage.children.length-1; j>=0; j--){
-            var coord = 
-            console.log(stage.children[j].hitTest(event.target.stageX, event.target.StageY));
 
-            console.log(stage.children[j].hitTest(p.x, p.y)); // true
+
 
             if (hit == false){
-                if (stage.children[i].hasEventListener()) {
-                    console.log("mozog")
-                }
+                console.log(stage.children[j])
+
+                var test = stage.children[j].globalToLocal(stage.mouseX, stage.mouseY)
+                if((stage.children[j].hitTest(test.x, test.y))){
+                    hit = true
+
+                    if (stage.children[j].hasEventListener("tick")) {
+                        console.log("huu")
+                        stage.children[j].removeEventListener("tick", circleTick);
+                    } else {
+                        console.log("sadasdasd")
+
+                        stage.children[j].addEventListener("tick", circleTick)
+                    }
+                };
+
             }
         }
-        var hit = myShape.hitTest(p.x, p.y);
     }
 
 
