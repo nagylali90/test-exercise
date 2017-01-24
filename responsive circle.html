@@ -11,10 +11,11 @@
 
 <style>
 
-    body{
+    body {
         margin: 0px;
     }
-    #canvas{
+
+    #canvas {
         background-color: azure;
         border: none;
         width: 100%;
@@ -23,171 +24,169 @@
     }
 </style>
 
-
-
 <body>
 
-<canvas id="canvas">   </canvas>
+<canvas id="canvas"></canvas>
 
 <script>
-    document.body.style.overflow = 'hidden'; // Remove scrollbars
-
+    document.body.style.overflow = 'hidden';    // Remove scrollbars
 </script>
 
 
 <script>
-
     var elements = [];
 
-    stage = new createjs.Stage("canvas");                                 //initializing area
-    var g = new createjs.Graphics();
+    var canvas = document.getElementById('canvas');
+    var context = canvas.getContext('2d');
 
-    createjs.Ticker.addEventListener("tick", handleTick);
-    createjs.Ticker.framerate = 10;
+    canvas.addEventListener("mousedown", doMouseDown, false);
 
-    $(document).ready(function(){
+    setInterval(animate, 20);
+
+
+    $(document).ready(function () {
         resize();
-        $(window).on("resize", function(){
+        $(window).on("resize", function () {
             resize();
         });
     });
 
-    function handleTick(event) {
-        stage.update();
+    function animate() {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+
+        for (var i in elements) {
+            drawCircle(elements[i]);
+        }
     }
 
-    function resize(){
+    function drawCircle(curr) {
+
+        if (canvas.height < canvas.width) {
+            curr.radius = canvas.height * 0.1;
+        } else {
+            curr.radius = canvas.width * 0.1
+        }
+
+
+        if (curr.isMove == true) {
+            curr.x = curr.x + curr.speedX
+            curr.y = curr.y + curr.speedY;
+        }
+
+        if (curr.x - curr.radius <= 0) {
+            curr.x = curr.radius;
+            curr.speedX = curr.speedX * -1
+        } else if (curr.x + curr.radius >= canvas.width) {
+            curr.x = canvas.width - curr.radius;
+            ;
+            curr.speedX = curr.speedX * -1
+        } else if (curr.y - curr.radius <= 0) {
+            curr.y = curr.radius;
+            curr.speedY = curr.speedY * -1
+        } else if (curr.y + curr.radius >= canvas.height) {
+            curr.y = canvas.height - curr.radius;
+            ;
+            curr.speedY = curr.speedY * -1
+        }
+
+        context.beginPath();
+        context.radius = curr.radius;
+        context.x = curr.x;
+        context.y = curr.y;
+        context.arc(context.x, context.y, context.radius, 0, 2 * Math.PI, false);
+        context.fillStyle = curr.color;
+        context.fill();
+        context.globalAlpha = 0.5;
+        context.strokeStyle = 'black';
+        context.stroke();
+
+    }
+
+    function resize() {
         $("#canvas").outerHeight($(window).innerHeight());
 
         var w = window.innerWidth;
         var h = window.innerHeight;
 
-        //resize stage
-        stage.canvas.width = w;
-        stage.canvas.height = h;
-
-
-        for (var i in stage.children){
-            console.log(stage.children[i].graphics.command.radius);
-        var scale = 0;
-           if(w<h) {
-               stage.children[i].graphics.command.radius = w*0.1
-            } else {
-               stage.children[i].graphics.command.radius = h*0.1
-            }
-            stage.update();
-        }
-
+        canvas.width = w;
+        canvas.height = h;
 
     }
-
-
-
 
 
     window.onkeydown = keyDownHandler;
 
-    stage.addEventListener("stagemousedown", handleMouseDown);
-
-    function keyDownHandler(e)
-    {
-       if (e.keyCode == 49) {
-           if (stage.children.length < 10) {
-             //  elementsCounter++                                            //check circles
-               createCircle();
-           } else {
-               console.log("Maximum reached!")
-           }
-       } else if (e. keyCode == 50){
-           if (stage.children.length > 0) {
-               removeFirstCircle();
-           } else {
-               console.log("Maximum reached!")
-           }
-       }
-    }
-
-    function handleMouseDown(event) {
-        var hit = false;
-        for (var j = stage.children.length-1; j>=0; j--){
-
-
-
-            if (hit == false){
-                console.log(stage.children[j])
-
-                var test = stage.children[j].globalToLocal(stage.mouseX, stage.mouseY)
-                if((stage.children[j].hitTest(test.x, test.y))){
-                    hit = true
-
-                    if (stage.children[j].hasEventListener("tick")) {
-                        console.log("huu")
-                        stage.children[j].removeEventListener("tick", circleTick);
-                    } else {
-                        console.log("sadasdasd")
-
-                        stage.children[j].addEventListener("tick", circleTick)
-                    }
-                };
-
+    function keyDownHandler(e) {
+        if (e.keyCode == 49) {
+            if (elements.length < 10) {
+                createCircle();
+            } else {
+                console.log("Maximum reached!")
+            }
+        } else if (e.keyCode == 50) {
+            if (elements.length > 0) {
+                removeFirstCircle();
+            } else {
+                console.log("Maximum reached!")
             }
         }
     }
 
 
-
     function createCircle() {
+
         var radius = 0;
-        if(stage.canvas.height < stage.canvas.width){
-            radius = stage.canvas.height * 0.1;
-        } else{
-            radius = stage.canvas.width * 0.1
+
+        if (canvas.height < canvas.width) {
+            radius = canvas.height * 0.1;
+        } else {
+            radius = canvas.width * 0.1
         }
 
-        console.log(stage.canvas.height/2,stage.canvas.width/2)
-        var c = new createjs.Shape();
-        var color  = '#'+(Math.random()*0xFFFFFF<<0).toString(16);
-        console.log(typeof (color));
-        c.graphics.beginFill(color).dc(radius,radius+1,radius);
-        console.log(c)
-        c.alpha = 0.5
-        c.speedX = Math.floor((Math.random() * 10) + 1);
-        c.speedY = Math.floor((Math.random() * 10));1
 
-        c.addEventListener("tick", circleTick)
+        var color = '#' + (Math.random() * 0xFFFFFF << 0).toString(16);
 
-        //var circle = g.drawCircle(0,0)
-        elements.push(c);
-        stage.addChild(c);
-        stage.update();
+        //set properties
+        var circle = {
+            radius: radius,
+            x: canvas.width / 2,
+            y: canvas.height / 2,
+            color: color,
+            speedX: Math.floor((Math.random() * 10) + 1),
+            speedY: Math.floor((Math.random() * 10)),
+            isMove: true
+        }
+
+
+        elements.push(circle);
+        drawCircle(circle)
+
     }
 
-    function circleTick(event) {
+    function doMouseDown() {
 
-        if(event.target.graphics.command.x<=event.target.graphics.command.radius){
-            event.target.graphics.command.x=event.target.graphics.command.radius
-            event.target.speedX = event.target.speedX * -1
-        } else if( event.target.graphics.command.x >=stage.canvas.width - event.target.graphics.command.radius ){
-            event.target.graphics.command.x = stage.canvas.width - event.target.graphics.command.radius;
-            event.target.speedX = event.target.speedX * -1
-        } else if (event.target.graphics.command.y<=event.target.graphics.command.radius){
-            event.target.graphics.command.y=event.target.graphics.command.radius
-            event.target.speedY = event.target.speedY * -1
-        } else if (event.target.graphics.command.y >=stage.canvas.height - event.target.graphics.command.radius){
-            event.target.graphics.command.y =stage.canvas.height - event.target.graphics.command.radius
-            event.target.speedY = event.target.speedY * -1
+        canvas_X = event.pageX;
+        canvas_Y = event.pageY;
+
+        //check clicked element
+        for (var i = elements.length - 1; i >= 0; i--) {
+            if (Math.sqrt((canvas_X - elements[i].x) * (canvas_X - elements[i].x) + (canvas_Y - elements[i].y) * (canvas_Y - elements[i].y)) < elements[i].radius) {
+                if (elements[i].isMove == true) {
+                    elements[i].isMove = false;
+                } else {
+                    elements[i].isMove = true;
+                }
+                break;
+            }
+
         }
-
-        event.target.graphics.command.y+=event.target.speedY;
-        event.target.graphics.command.x+=event.target.speedX;
 
     }
 
     function removeFirstCircle() {
-        stage.removeChild(stage.children[0]);
+        elements.shift();
     }
-
-
+    
 </script>
 
 </body>
