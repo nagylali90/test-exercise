@@ -144,14 +144,15 @@
             radius = stage.canvas.width * 0.1
         }
 
+        console.log(stage.canvas.height/2,stage.canvas.width/2)
         var c = new createjs.Shape();
         var color  = '#'+(Math.random()*0xFFFFFF<<0).toString(16);
         console.log(typeof (color));
-        c.graphics.beginFill(color).dc(stage.canvas.height/2,stage.canvas.width/2,radius);
+        c.graphics.beginFill(color).dc(radius,radius+1,radius);
         console.log(c)
         c.alpha = 0.5
         c.speedX = Math.floor((Math.random() * 10) + 1);
-        c.speedY = Math.floor((Math.random() * 10));
+        c.speedY = Math.floor((Math.random() * 10));1
 
         c.addEventListener("tick", circleTick)
 
@@ -163,10 +164,17 @@
 
     function circleTick(event) {
 
-
-        if(event.target.graphics.command.x<=0 + event.target.graphics.command.radius || event.target.graphics.command.x >=stage.canvas.width - event.target.graphics.command.radius ){
+        if(event.target.graphics.command.x<=event.target.graphics.command.radius){
+            event.target.graphics.command.x=event.target.graphics.command.radius
             event.target.speedX = event.target.speedX * -1
-        } else if (event.target.graphics.command.y<=0 + + event.target.graphics.command.radius || event.target.graphics.command.y >=stage.canvas.height - event.target.graphics.command.radius){
+        } else if( event.target.graphics.command.x >=stage.canvas.width - event.target.graphics.command.radius ){
+            event.target.graphics.command.x = stage.canvas.width - event.target.graphics.command.radius;
+            event.target.speedX = event.target.speedX * -1
+        } else if (event.target.graphics.command.y<=event.target.graphics.command.radius){
+            event.target.graphics.command.y=event.target.graphics.command.radius
+            event.target.speedY = event.target.speedY * -1
+        } else if (event.target.graphics.command.y >=stage.canvas.height - event.target.graphics.command.radius){
+            event.target.graphics.command.y =stage.canvas.height - event.target.graphics.command.radius
             event.target.speedY = event.target.speedY * -1
         }
 
